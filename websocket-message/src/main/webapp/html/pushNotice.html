@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+
+<audio id="notice" loop="loop">
+    <source src="./notice.mp3" type="audio/mpeg">
+</audio>
+
+<button id="send" onclick="sendMessage()">webSocket发送消息</button>
+</body>
+<script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.5.1.min.js"></script>
+<script>
+    var websocket =null;
+    if('WebSocket' in window){
+        //这里的地址根据第五步配置的注解地址填写
+        websocket = new WebSocket('ws://127.0.0.1:8080/webSocket');
+    }else {
+        alert('您的浏览器不支持websocket。');
+    }
+    websocket.onopen = function (event) {
+        console.log('建立连接');
+    }
+    websocket.onclose = function (event) {
+        console.log('连接关闭');
+    }
+    // websocket.onmessage = function (event) {
+    //     console.log('收到消息：'+event.data)
+    // }
+    websocket.onerror = function () {
+        alert('websocket通信发生错误');
+    }
+    websocket.onbeforeunload = function(){
+        websocket.close();
+    }
+
+    websocket.onmessage = function (event) {
+        console.log('收到消息：'+event.data)
+        //alert(event.data);
+        var myAuto = document.getElementById('notice');
+        console.log('开始播放音乐！15秒后停止...');
+        myAuto.play();
+        setTimeout(function () {
+            myAuto.pause();
+            console.log('音乐停止...')
+        },15000)
+    }
+
+    function sendMessage(){
+        $(function () {
+            $.ajax({
+                type: "post",
+                url: "http://localhost:8080/shop/test",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+                dataType: "json",
+                success: function(data){
+                    console.log("data==>"+data);
+                },
+            })
+
+        });
+    }
+
+</script>
+</html>
